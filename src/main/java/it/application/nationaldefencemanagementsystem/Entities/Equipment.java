@@ -32,5 +32,8 @@ public class Equipment {
     @Column(name = "ammunition_count")
     private int ammunitionCount;
 
-
+    /*
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "operator_id")
+    private Operator operator;*/
 }
