@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "Vehicle-Category", schema = "class")
+@Table(name = "vehicle_categories")
 @Getter
 @Setter
 @AllArgsConstructor
