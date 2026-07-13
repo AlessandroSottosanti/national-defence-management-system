@@ -21,7 +21,7 @@ public class VehicleDto {
     private UUID matricola;
     private String modello;
     private VehicleStatus stato;
-    private Integer VehicleCategoryId;
-    private Base baseId;
+    private Integer vehicleCategoryId;
+    private Integer baseId;
 
 }
