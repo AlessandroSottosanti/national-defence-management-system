@@ -1,13 +1,15 @@
 package it.application.nationaldefencemanagementsystem.Services;
 
 import it.application.nationaldefencemanagementsystem.DTOs.OperatorDto;
+import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.OperatorFilterDto;
 import it.application.nationaldefencemanagementsystem.Entities.Operator;
-import it.application.nationaldefencemanagementsystem.Entities.OperatorStatus;
 import it.application.nationaldefencemanagementsystem.Mappers.OperatorMapper;
 import it.application.nationaldefencemanagementsystem.Repositories.BaseRepository;
 import it.application.nationaldefencemanagementsystem.Repositories.OperatorRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -65,27 +67,83 @@ public class OperatorService extends AbstractService<Operator, OperatorDto> {
         );
     }
 
-    public OperatorDto findByServiceNumber(String serviceNumber) {
-        return repository.findByServiceNumber(serviceNumber)
-                .map(mapper::toDTO)
-                .orElse(null);
-    }
+    public List<OperatorDto> index(OperatorFilterDto filter) {
 
-    public List<OperatorDto> findByStatus(OperatorStatus status) {
-        return converter.toDTOList(
-                repository.findByStatus(status)
-        );
-    }
+        Specification<Operator> specification = (root, query, cb) -> {
 
-    public List<OperatorDto> findByBase(Integer baseId) {
-        return converter.toDTOList(
-                repository.findByBaseId(baseId)
-        );
-    }
+            List<Predicate> predicates = new ArrayList<>();
 
-    public List<OperatorDto> searchByLastName(String lastName) {
+            if (filter.getServiceNumber() != null &&
+                    !filter.getServiceNumber().isBlank()) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("serviceNumber"),
+                                filter.getServiceNumber()
+                        )
+                );
+            }
+
+            if (filter.getStatus() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("status"),
+                                filter.getStatus()
+                        )
+                );
+            }
+
+            if (filter.getBaseId() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("base").get("id"),
+                                filter.getBaseId()
+                        )
+                );
+            }
+
+            if (filter.getRank() != null &&
+                    !filter.getRank().isBlank()) {
+
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("rank")),
+                                "%" + filter.getRank().toLowerCase() + "%"
+                        )
+                );
+            }
+
+            if (filter.getFirstName() != null &&
+                    !filter.getFirstName().isBlank()) {
+
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("firstName")),
+                                "%" + filter.getFirstName().toLowerCase() + "%"
+                        )
+                );
+            }
+
+            if (filter.getLastName() != null &&
+                    !filter.getLastName().isBlank()) {
+
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("lastName")),
+                                "%" + filter.getLastName().toLowerCase() + "%"
+                        )
+                );
+            }
+
+            return cb.and(
+                    predicates.toArray(new Predicate[0])
+            );
+        };
+
         return converter.toDTOList(
-                repository.findByLastNameContainingIgnoreCase(lastName)
+                repository.findAll(specification)
         );
     }
 }

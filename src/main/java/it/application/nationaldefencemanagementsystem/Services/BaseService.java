@@ -1,6 +1,7 @@
 package it.application.nationaldefencemanagementsystem.Services;
 
 import it.application.nationaldefencemanagementsystem.DTOs.BaseDto;
+import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.BaseFilterDto;
 import it.application.nationaldefencemanagementsystem.Entities.Base;
 import it.application.nationaldefencemanagementsystem.Mappers.BaseMapper;
 import it.application.nationaldefencemanagementsystem.Repositories.ArmedForceRepository;
@@ -8,6 +9,9 @@ import it.application.nationaldefencemanagementsystem.Repositories.BaseRepositor
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import java.util.ArrayList;
 
 @Service
 public class BaseService extends AbstractService<Base, BaseDto> {
@@ -66,21 +70,62 @@ public class BaseService extends AbstractService<Base, BaseDto> {
         );
     }
 
-    public List<BaseDto> findByCity(String city) {
-        return converter.toDTOList(
-                repository.findByCity(city)
-        );
-    }
+    public List<BaseDto> index(BaseFilterDto filter) {
 
-    public List<BaseDto> findByArmedForce(Integer armedForceId) {
-        return converter.toDTOList(
-                repository.findByArmedForceId(armedForceId)
-        );
-    }
+        Specification<Base> specification = (root, query, cb) -> {
 
-    public List<BaseDto> searchByName(String name) {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filter.getName() != null &&
+                    !filter.getName().isBlank()) {
+
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("name")),
+                                "%" + filter.getName().toLowerCase() + "%"
+                        )
+                );
+            }
+
+            if (filter.getCity() != null &&
+                    !filter.getCity().isBlank()) {
+
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("city")),
+                                "%" + filter.getCity().toLowerCase() + "%"
+                        )
+                );
+            }
+
+            if (filter.getAddress() != null &&
+                    !filter.getAddress().isBlank()) {
+
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("address")),
+                                "%" + filter.getAddress().toLowerCase() + "%"
+                        )
+                );
+            }
+
+            if (filter.getArmedForceId() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("armedForce").get("id"),
+                                filter.getArmedForceId()
+                        )
+                );
+            }
+
+            return cb.and(
+                    predicates.toArray(new Predicate[0])
+            );
+        };
+
         return converter.toDTOList(
-                repository.findByNameContainingIgnoreCase(name)
+                repository.findAll(specification)
         );
     }
 }

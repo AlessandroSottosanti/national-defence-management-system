@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/armed-forces")
 public class ArmedForceController extends AbstractController<ArmedForceDto> {
@@ -17,10 +19,10 @@ public class ArmedForceController extends AbstractController<ArmedForceDto> {
         this.service = service;
     }
 
-    @GetMapping("/name")
-    public ArmedForceDto findByName(
-            @RequestParam String name
+    @GetMapping
+    public List<ArmedForceDto> index(
+            @RequestParam(required = false) String name
     ) {
-        return service.findByName(name);
+        return service.index(name);
     }
 }
