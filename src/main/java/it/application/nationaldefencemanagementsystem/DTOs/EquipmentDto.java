@@ -8,12 +8,10 @@ import lombok.*;
 
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class EquipmentDto {
-
     private Integer id;
     private String name;
     private String model;

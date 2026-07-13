@@ -8,8 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-
-
 public class VehicleCategoryDto {
 
     private Integer id;
