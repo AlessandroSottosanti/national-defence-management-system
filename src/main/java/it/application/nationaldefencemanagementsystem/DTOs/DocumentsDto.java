@@ -17,5 +17,5 @@ public class DocumentsDto {
     private String title;
     private String filePath;
     private Operator operator;
-    private Vehicle vehicle;
+    private Integer vehicle_id;
 }

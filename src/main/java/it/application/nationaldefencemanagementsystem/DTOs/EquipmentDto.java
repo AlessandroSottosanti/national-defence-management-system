@@ -23,5 +23,5 @@ public class EquipmentDto {
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
 
-    private Operator operator;
+    private Integer operator_id;
 }
