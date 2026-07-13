@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class MaintenanceDto {
 
     private Integer id;
-    private Vehicle vehicle;
+    private Vehicle vehicleId;
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;

@@ -18,9 +18,10 @@ import java.util.UUID;
 
 public class VehicleDto {
     private Integer id;
+    private UUID matricola;
     private String modello;
     private VehicleStatus stato;
-    private VehicleCategory category;
-    private Base base;
+    private Integer VehicleCategoryId;
+    private Base baseId;
 
 }
