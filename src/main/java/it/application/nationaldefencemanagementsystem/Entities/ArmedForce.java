@@ -11,7 +11,6 @@ import lombok.*;
 @Setter
 @ToString
 public class ArmedForce {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
