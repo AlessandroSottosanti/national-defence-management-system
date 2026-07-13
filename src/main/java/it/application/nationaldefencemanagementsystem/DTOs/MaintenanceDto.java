@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-
 public class MaintenanceDto {
 
     private Integer id;
