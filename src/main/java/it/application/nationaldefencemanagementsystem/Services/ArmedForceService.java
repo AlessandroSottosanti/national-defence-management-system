@@ -6,6 +6,8 @@ import it.application.nationaldefencemanagementsystem.Mappers.ArmedForceMapper;
 import it.application.nationaldefencemanagementsystem.Repositories.ArmedForceRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ArmedForceService extends AbstractService<ArmedForce, ArmedForceDto> {
 
@@ -19,9 +21,14 @@ public class ArmedForceService extends AbstractService<ArmedForce, ArmedForceDto
         this.repository = repository;
     }
 
-    public ArmedForceDto findByName(String name) {
-        return repository.findByName(name)
-                .map(converter::toDTO)
-                .orElse(null);
+    public List<ArmedForceDto> index(String name) {
+
+        if (name == null || name.isBlank()) {
+            return converter.toDTOList(repository.findAll());
+        }
+
+        return converter.toDTOList(
+                repository.findByNameContainingIgnoreCase(name)
+        );
     }
 }
