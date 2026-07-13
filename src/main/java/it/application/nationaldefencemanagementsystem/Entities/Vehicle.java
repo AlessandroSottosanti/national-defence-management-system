@@ -28,8 +28,8 @@ public class Vehicle {
     @JoinColumn(name = "category_id")
     private VehicleCategory category;
 
-    //@ManyToOne
-    //@JoinColumn(name = "base_id")
-    //private Base base;
+    @ManyToOne
+    @JoinColumn(name = "base_id")
+    private Base base;
 
 }

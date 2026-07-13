@@ -21,15 +21,12 @@ public class Documents {
     @Column(name="file_path")
     private String filePath;
 
-    /*
     @ManyToOne
     @JoinColumn(name="operator_id")
-    private Operator operator;*/
+    private Operator operator;
 
-    /*
     @ManyToOne
     @JoinColumn(name="vehicle_id")
     private Vehicle vehicle;
-    */
 
 }

@@ -32,10 +32,8 @@ public class Operator {
     @Column(nullable = false)
     private OperatorStatus status;
 
-    /*
     @ManyToOne
     @JoinColumn(name = "base_id", nullable = false)
     private Base base;
-     */
 
 }

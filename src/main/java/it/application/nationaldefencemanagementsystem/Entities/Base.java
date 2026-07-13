@@ -25,9 +25,7 @@ public class Base {
     @Column(nullable = false, length = 255)
     private String address;
 
-   /*
     @ManyToOne
     @JoinColumn(name = "armed_force_id", nullable = false)
     private ArmedForce armedForce;
-    */
 }
