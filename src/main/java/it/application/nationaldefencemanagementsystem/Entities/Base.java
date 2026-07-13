@@ -1,11 +1,15 @@
 package it.application.nationaldefencemanagementsystem.Entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "bases")
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Base {
 
     @Id
