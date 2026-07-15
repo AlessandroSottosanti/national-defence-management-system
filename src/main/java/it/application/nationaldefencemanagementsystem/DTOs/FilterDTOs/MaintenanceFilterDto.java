@@ -19,6 +19,7 @@ import java.time.LocalDate;
 public class MaintenanceFilterDto {
 
     private Integer vehicleId;
+    private Integer equipmentId;
 
     private String description;
 

@@ -2,9 +2,11 @@ package it.application.nationaldefencemanagementsystem.Services;
 
 import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.MaintenanceFilterDto;
 import it.application.nationaldefencemanagementsystem.DTOs.MaintenanceDto;
+import it.application.nationaldefencemanagementsystem.Entities.Equipment;
 import it.application.nationaldefencemanagementsystem.Entities.Maintenance;
 import it.application.nationaldefencemanagementsystem.Entities.Vehicle;
 import it.application.nationaldefencemanagementsystem.Mappers.MaintenanceMapper;
+import it.application.nationaldefencemanagementsystem.Repositories.EquipmentRepository;
 import it.application.nationaldefencemanagementsystem.Repositories.MaintenanceRepository;
 import it.application.nationaldefencemanagementsystem.Repositories.VehicleRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -22,12 +24,14 @@ public class MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final VehicleRepository vehicleRepository;
     private final MaintenanceMapper maintenanceMapper;
+    private final EquipmentRepository equipmentRepository;
 
     /*
-     * Restituisce le manutenzioni applicando solamente
-     * i filtri valorizzati.
+     * Restituisce le manutenzioni applicando
+     * esclusivamente i filtri valorizzati.
      *
-     * Se nessun filtro viene passato, restituisce tutto.
+     * Se non viene passato alcun filtro,
+     * restituisce tutte le manutenzioni.
      */
     public List<MaintenanceDto> index(
             MaintenanceFilterDto filter
@@ -45,12 +49,10 @@ public class MaintenanceService {
                             new ArrayList<>();
 
                     /*
-                     * Filtra tramite l'ID del veicolo collegato.
-                     *
-                     * vehicle è il nome del campo presente
-                     * nell'entity Maintenance.
+                     * Filtra per ID del veicolo collegato.
                      */
                     if (currentFilter.getVehicleId() != null) {
+
                         predicates.add(
                                 cb.equal(
                                         root.get("vehicle").get("id"),
@@ -60,8 +62,21 @@ public class MaintenanceService {
                     }
 
                     /*
-                     * Ricerca parziale e case-insensitive
-                     * all'interno della descrizione.
+                     * Filtra per ID dell'equipaggiamento collegato.
+                     */
+                    if (currentFilter.getEquipmentId() != null) {
+
+                        predicates.add(
+                                cb.equal(
+                                        root.get("equipment").get("id"),
+                                        currentFilter.getEquipmentId()
+                                )
+                        );
+                    }
+
+                    /*
+                     * Ricerca parziale nella descrizione,
+                     * senza distinzione tra maiuscole e minuscole.
                      */
                     if (currentFilter.getDescription() != null
                             && !currentFilter
@@ -86,6 +101,7 @@ public class MaintenanceService {
 
                     // Filtro esatto per data di inizio.
                     if (currentFilter.getStartDate() != null) {
+
                         predicates.add(
                                 cb.equal(
                                         root.get("startDate"),
@@ -96,6 +112,7 @@ public class MaintenanceService {
 
                     // Filtro esatto per data di fine.
                     if (currentFilter.getEndDate() != null) {
+
                         predicates.add(
                                 cb.equal(
                                         root.get("endDate"),
@@ -121,6 +138,7 @@ public class MaintenanceService {
 
                     // Filtro esatto per costo.
                     if (currentFilter.getCost() != null) {
+
                         predicates.add(
                                 cb.equal(
                                         root.get("cost"),
@@ -130,10 +148,7 @@ public class MaintenanceService {
                     }
 
                     /*
-                     * Tutti i filtri vengono collegati con AND.
-                     *
-                     * Esempio:
-                     * vehicle_id = 2 AND start_date = 2026-07-15
+                     * Collega tutte le condizioni tramite AND.
                      */
                     return cb.and(
                             predicates.toArray(
@@ -162,30 +177,41 @@ public class MaintenanceService {
 
     /*
      * Crea una nuova manutenzione.
+     *
+     * La manutenzione deve riguardare un veicolo
+     * oppure un equipaggiamento, mai entrambi.
      */
     public MaintenanceDto create(MaintenanceDto dto) {
 
         validateMaintenanceDates(dto);
+        validateMaintenanceTarget(dto);
 
-        /*
-         * Recupera il veicolo indicato nel DTO.
-         * Se non esiste, viene generato un errore.
-         */
-        Vehicle vehicle =
-                getVehicleById(dto.getVehicleId());
-
-        /*
-         * Il mapper crea l'entity copiando
-         * i dati semplici del DTO.
-         */
         Maintenance maintenance =
                 maintenanceMapper.toEntity(dto);
 
         /*
-         * La relazione con Vehicle viene impostata
-         * nel service, dopo aver recuperato il veicolo.
+         * Associazione al veicolo.
          */
-        maintenance.setVehicle(vehicle);
+        if (dto.getVehicleId() != null) {
+
+            Vehicle vehicle =
+                    getVehicleById(dto.getVehicleId());
+
+            maintenance.setVehicle(vehicle);
+            maintenance.setEquipment(null);
+        }
+
+        /*
+         * Associazione all'equipaggiamento.
+         */
+        if (dto.getEquipmentId() != null) {
+
+            Equipment equipment =
+                    getEquipmentById(dto.getEquipmentId());
+
+            maintenance.setEquipment(equipment);
+            maintenance.setVehicle(null);
+        }
 
         Maintenance savedMaintenance =
                 maintenanceRepository.save(maintenance);
@@ -204,18 +230,14 @@ public class MaintenanceService {
     ) {
 
         validateMaintenanceDates(dto);
+        validateMaintenanceTarget(dto);
 
         /*
-         * Recupera l'entity esistente.
-         * Non creiamo una nuova entity durante l'update.
+         * Recuperiamo l'entity già esistente.
          */
         Maintenance maintenance =
                 getMaintenanceById(id);
 
-        Vehicle vehicle =
-                getVehicleById(dto.getVehicleId());
-
-        maintenance.setVehicle(vehicle);
         maintenance.setDescription(dto.getDescription());
         maintenance.setStartDate(dto.getStartDate());
         maintenance.setEndDate(dto.getEndDate());
@@ -223,6 +245,34 @@ public class MaintenanceService {
                 dto.getEstimatedMaintenanceDays()
         );
         maintenance.setCost(dto.getCost());
+
+        /*
+         * Se la manutenzione riguarda un veicolo,
+         * colleghiamo il veicolo e rimuoviamo
+         * l'eventuale equipaggiamento precedente.
+         */
+        if (dto.getVehicleId() != null) {
+
+            Vehicle vehicle =
+                    getVehicleById(dto.getVehicleId());
+
+            maintenance.setVehicle(vehicle);
+            maintenance.setEquipment(null);
+        }
+
+        /*
+         * Se la manutenzione riguarda un equipaggiamento,
+         * colleghiamo l'equipaggiamento e rimuoviamo
+         * l'eventuale veicolo precedente.
+         */
+        if (dto.getEquipmentId() != null) {
+
+            Equipment equipment =
+                    getEquipmentById(dto.getEquipmentId());
+
+            maintenance.setEquipment(equipment);
+            maintenance.setVehicle(null);
+        }
 
         Maintenance updatedMaintenance =
                 maintenanceRepository.save(maintenance);
@@ -244,7 +294,7 @@ public class MaintenanceService {
     }
 
     /*
-     * Recupera una manutenzione oppure genera un errore.
+     * Recupera una manutenzione tramite ID.
      */
     private Maintenance getMaintenanceById(Integer id) {
 
@@ -258,7 +308,7 @@ public class MaintenanceService {
     }
 
     /*
-     * Recupera il veicolo da associare alla manutenzione.
+     * Recupera un veicolo tramite ID.
      */
     private Vehicle getVehicleById(Integer id) {
 
@@ -272,7 +322,53 @@ public class MaintenanceService {
     }
 
     /*
-     * Verifica che la data di fine non sia
+     * Recupera un equipaggiamento tramite ID.
+     */
+    private Equipment getEquipmentById(Integer id) {
+
+        return equipmentRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Equipaggiamento non trovato con id: "
+                                        + id
+                        )
+                );
+    }
+
+    /*
+     * Controlla che la manutenzione sia associata
+     * esattamente a uno tra Vehicle ed Equipment.
+     */
+    private void validateMaintenanceTarget(
+            MaintenanceDto dto
+    ) {
+
+        boolean hasVehicle =
+                dto.getVehicleId() != null;
+
+        boolean hasEquipment =
+                dto.getEquipmentId() != null;
+
+        if (!hasVehicle && !hasEquipment) {
+
+            throw new IllegalArgumentException(
+                    "La manutenzione deve essere associata "
+                            + "a un veicolo o a un equipaggiamento"
+            );
+        }
+
+        if (hasVehicle && hasEquipment) {
+
+            throw new IllegalArgumentException(
+                    "La manutenzione non può essere associata "
+                            + "contemporaneamente a un veicolo "
+                            + "e a un equipaggiamento"
+            );
+        }
+    }
+
+    /*
+     * Controlla che la data di fine non sia
      * precedente alla data di inizio.
      */
     private void validateMaintenanceDates(

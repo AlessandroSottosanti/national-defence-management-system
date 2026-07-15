@@ -30,6 +30,13 @@ public class MaintenanceMapper {
             );
         }
 
+        //aggiungo equipaggiamento
+        if (maintenance.getEquipment() != null) {
+            dto.setEquipmentId(
+                    maintenance.getEquipment().getId()
+            );
+        }
+
         return dto;
     }
 

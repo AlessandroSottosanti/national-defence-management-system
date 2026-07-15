@@ -45,7 +45,10 @@ public class MaintenanceController
             Integer estimatedMaintenanceDays,
 
             @RequestParam(required = false)
-            BigDecimal cost
+            BigDecimal cost,
+
+            @RequestParam(required = false)
+            Integer equipmentId
     ) {
 
         MaintenanceFilterDto filter =
@@ -59,6 +62,7 @@ public class MaintenanceController
                 estimatedMaintenanceDays
         );
         filter.setCost(cost);
+        filter.setEquipmentId(equipmentId);
 
         return service.index(filter);
     }
