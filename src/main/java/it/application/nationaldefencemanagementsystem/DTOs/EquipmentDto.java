@@ -20,6 +20,7 @@ public class EquipmentDto {
 
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
-
+    private Integer ammunitionCount;
+    private Integer maxAmmunition;
     private Integer operatorId;
 }

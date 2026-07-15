@@ -23,8 +23,11 @@ public class EquipmentController extends AbstractController<EquipmentDto>{
             @RequestParam(required = false) EquipmentCondition condition,
             @RequestParam(required = false) EquipmentStatus status,
             @RequestParam(required = false) Boolean fireArm,
-            @RequestParam(required = false) Integer operatorId
-    ) {
+            @RequestParam(required = false) Integer operatorId,
+            @RequestParam(required = false) Integer ammunitionCount,
+            @RequestParam(required = false) Integer maxAmmunition
+
+            ) {
 
         EquipmentFilterDto filter = new EquipmentFilterDto();
 
@@ -34,6 +37,8 @@ public class EquipmentController extends AbstractController<EquipmentDto>{
         filter.setStatus(status);
         filter.setFireArm(fireArm);
         filter.setOperatorId(operatorId);
+        filter.setAmmunitionCount(ammunitionCount);
+        filter.setMaxAmmunition(maxAmmunition);
 
         return service.index(filter);
     }

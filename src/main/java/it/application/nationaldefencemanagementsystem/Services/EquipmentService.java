@@ -134,6 +134,26 @@ public class EquipmentService extends AbstractService<Equipment, EquipmentDto> {
                 );
             }
 
+
+            if (filter.getMaxAmmunition() != null) {
+                predicates.add(
+                        cb.lessThanOrEqualTo(
+                                root.get("maxAmmunition"),
+                                filter.getMaxAmmunition()
+                        )
+                );
+            }
+
+            if (filter.getAmmunitionCount() != null) {
+                predicates.add(
+                        cb.lessThanOrEqualTo(
+                                root.get("ammunitionCount"),
+                                filter.getAmmunitionCount()
+                        )
+                );
+            }
+
+
             if (filter.getOperatorId() != null) {
 
                 predicates.add(
