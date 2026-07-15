@@ -1,8 +1,11 @@
-package it.application.nationaldefencemanagementsystem.DTOs;
+package it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs;
 
-import it.application.nationaldefencemanagementsystem.Entities.Vehicle;
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,13 +16,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class MaintenanceDto {
+public class MaintenanceFilterDto {
 
-    private Integer id;
     private Integer vehicleId;
+
     private String description;
+
     private LocalDate startDate;
+
     private LocalDate endDate;
+
     private Integer estimatedMaintenanceDays;
+
     private BigDecimal cost;
 }
