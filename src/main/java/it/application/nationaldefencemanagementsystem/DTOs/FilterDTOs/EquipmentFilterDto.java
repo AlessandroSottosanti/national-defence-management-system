@@ -1,25 +1,21 @@
-package it.application.nationaldefencemanagementsystem.DTOs;
+package it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs;
 
 import it.application.nationaldefencemanagementsystem.Entities.EquipmentCondition;
 import it.application.nationaldefencemanagementsystem.Entities.EquipmentStatus;
-import it.application.nationaldefencemanagementsystem.Entities.Operator;
-import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
-public class EquipmentDto {
-    private Integer id;
+@EqualsAndHashCode
+public class EquipmentFilterDto {
+
     private String name;
     private String model;
-    @Enumerated(EnumType.STRING)
     private EquipmentCondition condition;
-
-    @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
-
+    private Boolean fireArm;
     private Integer operatorId;
 }
