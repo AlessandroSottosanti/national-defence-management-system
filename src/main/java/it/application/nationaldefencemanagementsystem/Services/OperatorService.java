@@ -138,23 +138,23 @@ public class OperatorService extends AbstractService<Operator, OperatorDto> {
             }
 
             if(filter.getHeightInCm() != null &&
-                filter.getHeightInCm() > 0){
+                    filter.getHeightInCm() > 0){
 
                 predicates.add(
-                        cb.like(
-                                cb.lower(root.get("heightInCm")),
-                                "%" + filter.getHeightInCm() + "%"
+                        cb.greaterThanOrEqualTo(
+                                root.get("heightInCm"),
+                                filter.getHeightInCm()
                         )
                 );
             }
 
             if(filter.getWeightInKg() != null &&
-                filter.getWeightInKg() > 0){
+                    filter.getWeightInKg() > 0){
 
                 predicates.add(
-                        cb.like(
-                                cb.lower(root.get("weightInKg")),
-                                "%" + filter.getWeightInKg() + "%"
+                        cb.greaterThanOrEqualTo(
+                                root.get("weightInKg"),
+                                filter.getWeightInKg()
                         )
                 );
             }
