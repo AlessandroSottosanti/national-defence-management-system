@@ -1,63 +1,198 @@
 package it.application.nationaldefencemanagementsystem.Services;
 
 import it.application.nationaldefencemanagementsystem.DTOs.EquipmentDto;
+import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.EquipmentFilterDto;
 import it.application.nationaldefencemanagementsystem.Entities.Equipment;
-import it.application.nationaldefencemanagementsystem.Entities.EquipmentCondition;
-import it.application.nationaldefencemanagementsystem.Entities.EquipmentStatus;
 import it.application.nationaldefencemanagementsystem.Mappers.EquipmentMapper;
 import it.application.nationaldefencemanagementsystem.Repositories.EquipmentRepository;
+import it.application.nationaldefencemanagementsystem.Repositories.OperatorRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class EquipmentService extends AbstractService<Equipment, EquipmentDto>{
+public class EquipmentService extends AbstractService<Equipment, EquipmentDto> {
 
     private final EquipmentRepository repository;
+    private final OperatorRepository operatorRepository;
+    private final EquipmentMapper mapper;
 
-    public EquipmentService(EquipmentRepository repository, EquipmentMapper mapper){
-        super(repository,mapper);
+    public EquipmentService(
+            EquipmentRepository repository,
+            EquipmentMapper mapper,
+            OperatorRepository operatorRepository
+    ) {
+        super(repository, mapper);
+
         this.repository = repository;
+        this.mapper = mapper;
+        this.operatorRepository = operatorRepository;
     }
 
-    public List<EquipmentDto> findByStatus(EquipmentStatus status) {
-        return converter.toDTOList(repository.findByStatus(status));
+    @Override
+    public EquipmentDto insert(EquipmentDto dto) {
+
+        Equipment entity = mapper.toEntity(dto);
+
+        if (dto.getOperatorId() != null && dto.getOperatorId() > 0) {
+
+            entity.setOperator(
+                    operatorRepository.findById(dto.getOperatorId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Operator not found with id: " + dto.getOperatorId()
+                                    ))
+            );
+        }
+
+        return mapper.toDTO(
+                repository.save(entity)
+        );
     }
 
-    public List<EquipmentDto> findByCondition(EquipmentCondition condition) {
-        return converter.toDTOList(repository.findByCondition(condition));
+    @Override
+    public EquipmentDto update(EquipmentDto dto) {
+
+        Equipment entity = mapper.toEntity(dto);
+
+        if (dto.getOperatorId() != null) {
+
+            entity.setOperator(
+                    operatorRepository.findById(dto.getOperatorId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Operator not found with id: " + dto.getOperatorId()
+                                    ))
+            );
+        } else {
+
+            entity.setOperator(null);
+        }
+
+        return mapper.toDTO(
+                repository.save(entity)
+        );
     }
 
-    public List<EquipmentDto> findByStatusAndCondition(EquipmentStatus status, EquipmentCondition condition) {
-        return converter.toDTOList(repository.findByStatusAndCondition(status, condition));
-    }
+    public List<EquipmentDto> index(EquipmentFilterDto filter) {
 
-    public List<EquipmentDto> findFireArms() {
-        return converter.toDTOList(repository.findByFireArmTrue());
-    }
+        Specification<Equipment> specification = (root, query, cb) -> {
 
-    public List<EquipmentDto> findFireArmsNeedingAmmunition(Integer threshold) {
-        return converter.toDTOList(repository.findByFireArmTrueAndAmmunitionCountLessThan(threshold));
-    }
+            List<Predicate> predicates = new ArrayList<>();
 
-    public List<EquipmentDto> findByOperatorId(Integer operatorId) {
-        return converter.toDTOList(repository.findByOperatorId(operatorId));
-    }
+            if (filter.getName() != null &&
+                    !filter.getName().isBlank()) {
 
-    public long countByStatus(EquipmentStatus status) {
-        return repository.countByStatus(status);
-    }
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("name")),
+                                "%" + filter.getName().toLowerCase() + "%"
+                        )
+                );
+            }
 
-    public long countByCondition(EquipmentCondition condition) {
-        return repository.countByCondition(condition);
-    }
+            if (filter.getModel() != null &&
+                    !filter.getModel().isBlank()) {
 
-    public List<EquipmentDto> findByOperatorIsNull(){
-        return converter.toDTOList(repository.findByOperatorIdIsNull());
-    }
+                predicates.add(
+                        cb.like(
+                                cb.lower(root.get("model")),
+                                "%" + filter.getModel().toLowerCase() + "%"
+                        )
+                );
+            }
 
-    public List<EquipmentDto> findByOperatorIdIsNotNull(){
-        return converter.toDTOList(repository.findByOperatorIdIsNotNull());
-    }
+            if (filter.getCondition() != null) {
 
+                predicates.add(
+                        cb.equal(
+                                root.get("condition"),
+                                filter.getCondition()
+                        )
+                );
+            }
+
+            if (filter.getStatus() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("status"),
+                                filter.getStatus()
+                        )
+                );
+            }
+
+            if (filter.getFireArm() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("fireArm"),
+                                filter.getFireArm()
+                        )
+                );
+            }
+
+
+            if (filter.getMaxAmmunitionCount() != null) {
+                predicates.add(
+                        cb.lessThan(
+                                root.get("ammunitionCount"),
+                                filter.getMaxAmmunitionCount()
+                        )
+                );
+            }
+
+
+
+
+            // Filtro per il limite minimo di munizioni ( >= minAmmunitionCount )
+            if (filter.getMinAmmunitionCount() != null) {
+                predicates.add(
+                        cb.greaterThanOrEqualTo(
+                                root.get("ammunitionCount"),
+                                filter.getMinAmmunitionCount()
+                        )
+                );
+            }
+
+            if (filter.getMaxAmmoCapacity() != null) {
+                predicates.add(
+                        cb.lessThan(
+                                root.get("ammoCapacity"),
+                                filter.getMaxAmmoCapacity()
+                        )
+                );
+            }
+
+            if (filter.getMinAmmoCapacity() != null) {
+                predicates.add(
+                        cb.greaterThanOrEqualTo(
+                                root.get("ammoCapacity"),
+                                filter.getMinAmmoCapacity()
+                        )
+                );
+            }
+
+
+            if (filter.getOperatorId() != null) {
+
+                predicates.add(
+                        cb.equal(
+                                root.get("operator").get("id"),
+                                filter.getOperatorId()
+                        )
+                );
+            }
+
+            return cb.and(
+                    predicates.toArray(new Predicate[0])
+            );
+        };
+
+        return converter.toDTOList(
+                repository.findAll(specification)
+        );
+    }
 }
