@@ -1,74 +1,41 @@
 package it.application.nationaldefencemanagementsystem.Controllers;
 
+import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.VehicleFilterDto;
 import it.application.nationaldefencemanagementsystem.DTOs.VehicleDto;
+import it.application.nationaldefencemanagementsystem.Entities.VehicleStatus;
 import it.application.nationaldefencemanagementsystem.Services.VehicleService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/vehicles")
-@RequiredArgsConstructor
-public class VehicleController {
+public class VehicleController extends AbstractController<VehicleDto> {
 
-    private final VehicleService vehicleService;
+    private final VehicleService service;
+
+    public VehicleController(VehicleService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public ResponseEntity<List<VehicleDto>> findAll() {
-
-        List<VehicleDto> vehicles =
-                vehicleService.findAll();
-
-        return ResponseEntity.ok(vehicles);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<VehicleDto> findById(
-            @PathVariable Integer id
+    public List<VehicleDto> index(
+            @RequestParam(required = false) UUID matricola,
+            @RequestParam(required = false) String modello,
+            @RequestParam(required = false) VehicleStatus stato,
+            @RequestParam(required = false) Integer vehicleCategoryId,
+            @RequestParam(required = false) Integer baseId
     ) {
 
-        VehicleDto vehicle =
-                vehicleService.findById(id);
+        VehicleFilterDto filter = new VehicleFilterDto();
 
-        return ResponseEntity.ok(vehicle);
-    }
+        filter.setMatricola(matricola);
+        filter.setModello(modello);
+        filter.setStato(stato);
+        filter.setVehicleCategoryId(vehicleCategoryId);
+        filter.setBaseId(baseId);
 
-    @PostMapping
-    public ResponseEntity<VehicleDto> create(
-            @Valid @RequestBody VehicleDto dto
-    ) {
-
-        VehicleDto created =
-                vehicleService.create(dto);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(created);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<VehicleDto> update(
-            @PathVariable Integer id,
-            @Valid @RequestBody VehicleDto dto
-    ) {
-
-        VehicleDto updated =
-                vehicleService.update(id, dto);
-
-        return ResponseEntity.ok(updated);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Integer id
-    ) {
-
-        vehicleService.delete(id);
-
-        return ResponseEntity.noContent().build();
+        return service.index(filter);
     }
 }
