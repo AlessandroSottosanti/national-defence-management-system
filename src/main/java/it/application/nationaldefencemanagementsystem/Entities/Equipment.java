@@ -32,8 +32,8 @@ public class Equipment {
     @Column(name = "ammunition_count")
     private Integer ammunitionCount;
 
-    @Column(name = "max_ammunition")
-    private Integer maxAmmunition;
+    @Column(name = "ammo_capacity")
+    private Integer ammoCapacity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "operator_id")
