@@ -1,5 +1,7 @@
 package it.application.nationaldefencemanagementsystem.Controllers;
 
+import it.application.nationaldefencemanagementsystem.DTOs.DocumentsDto;
+import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.DocumentFilterDto;
 import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.VehicleFilterDto;
 import it.application.nationaldefencemanagementsystem.DTOs.VehicleDto;
 import it.application.nationaldefencemanagementsystem.Entities.VehicleStatus;
@@ -21,21 +23,8 @@ public class VehicleController extends AbstractController<VehicleDto> {
 
     @GetMapping
     public List<VehicleDto> index(
-            @RequestParam(required = false) UUID matricola,
-            @RequestParam(required = false) String modello,
-            @RequestParam(required = false) VehicleStatus stato,
-            @RequestParam(required = false) Integer vehicleCategoryId,
-            @RequestParam(required = false) Integer baseId
-    ) {
-
-        VehicleFilterDto filter = new VehicleFilterDto();
-
-        filter.setMatricola(matricola);
-        filter.setModello(modello);
-        filter.setStato(stato);
-        filter.setVehicleCategoryId(vehicleCategoryId);
-        filter.setBaseId(baseId);
-
+            @ModelAttribute VehicleFilterDto filter
+    ){
         return service.index(filter);
     }
 }
