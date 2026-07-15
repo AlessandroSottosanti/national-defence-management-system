@@ -36,7 +36,7 @@ public class EquipmentService extends AbstractService<Equipment, EquipmentDto> {
 
         Equipment entity = mapper.toEntity(dto);
 
-        if (dto.getOperatorId() != null) {
+        if (dto.getOperatorId() != null && dto.getOperatorId() > 0) {
 
             entity.setOperator(
                     operatorRepository.findById(dto.getOperatorId())
