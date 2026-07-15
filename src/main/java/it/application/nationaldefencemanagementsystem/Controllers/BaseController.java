@@ -2,6 +2,8 @@ package it.application.nationaldefencemanagementsystem.Controllers;
 
 import it.application.nationaldefencemanagementsystem.DTOs.BaseDto;
 import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.BaseFilterDto;
+import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.OperatorFilterDto;
+import it.application.nationaldefencemanagementsystem.DTOs.OperatorDto;
 import it.application.nationaldefencemanagementsystem.Services.BaseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,24 +21,8 @@ public class BaseController extends AbstractController<BaseDto> {
 
     @GetMapping
     public List<BaseDto> index(
-
-            @RequestParam(required = false) String name,
-
-            @RequestParam(required = false) String city,
-
-            @RequestParam(required = false) String address,
-
-            @RequestParam(required = false) Integer armedForceId
-
+            @ModelAttribute BaseFilterDto filter
     ) {
-
-        BaseFilterDto filter = new BaseFilterDto();
-
-        filter.setName(name);
-        filter.setCity(city);
-        filter.setAddress(address);
-        filter.setArmedForceId(armedForceId);
-
         return service.index(filter);
     }
 }

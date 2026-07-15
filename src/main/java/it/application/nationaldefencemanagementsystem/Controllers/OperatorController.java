@@ -1,8 +1,10 @@
 package it.application.nationaldefencemanagementsystem.Controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.application.nationaldefencemanagementsystem.DTOs.OperatorDto;
 import it.application.nationaldefencemanagementsystem.DTOs.FilterDTOs.OperatorFilterDto;
-import it.application.nationaldefencemanagementsystem.Entities.OperatorStatus;
 import it.application.nationaldefencemanagementsystem.Services.OperatorService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,29 +20,16 @@ public class OperatorController extends AbstractController<OperatorDto> {
         this.service = service;
     }
 
+    @Operation(summary = "Recupera tutti gli elementi",
+            description = "Restituisce la lista degli oggetti gestiti dal controller")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Oggetti restituiti correttamente"),
+            @ApiResponse(responseCode = "500", description = "Errore interno del server")
+    })
     @GetMapping
     public List<OperatorDto> index(
-            @RequestParam(required = false) String serviceNumber,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) Integer heightInCm,
-            @RequestParam(required = false) Integer weightInKg,
-            @RequestParam(required = false) String rank,
-            @RequestParam(required = false) Integer baseId,
-            @RequestParam(required = false) OperatorStatus status
+            @ModelAttribute OperatorFilterDto filter
     ) {
-
-        OperatorFilterDto filter = new OperatorFilterDto();
-
-        filter.setServiceNumber(serviceNumber);
-        filter.setRank(rank);
-        filter.setFirstName(firstName);
-        filter.setLastName(lastName);
-        filter.setHeightInCm(heightInCm);
-        filter.setWeightInKg(weightInKg);
-        filter.setBaseId(baseId);
-        filter.setStatus(status);
-
         return service.index(filter);
     }
 }

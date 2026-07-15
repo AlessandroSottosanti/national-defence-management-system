@@ -20,11 +20,6 @@ public abstract class AbstractService<ENTITY,DTO> implements ServiceDto<DTO> {
     }
 
     @Override
-    public Iterable<DTO> getAll() {
-        return converter.toDTOList(repository.findAll());
-    }
-
-    @Override
     public DTO read(Integer id) {
         return converter.toDTO(repository.findById(id).isPresent() ? repository.findById(id).get() : null);
     }
