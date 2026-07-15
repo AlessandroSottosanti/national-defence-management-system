@@ -28,6 +28,12 @@ public class Operator {
     @Column(nullable = false, length = 100)
     private String rank;
 
+    @Column(nullable = false)
+    private Integer heightInCm;
+
+    @Column(nullable = false)
+    private Integer weightInKg;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OperatorStatus status;

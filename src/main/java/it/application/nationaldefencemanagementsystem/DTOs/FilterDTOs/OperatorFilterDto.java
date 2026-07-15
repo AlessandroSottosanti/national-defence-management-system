@@ -15,6 +15,8 @@ public class OperatorFilterDto {
     private String serviceNumber;
     private String firstName;
     private String lastName;
+    private Integer heightInCm;
+    private Integer weightInKg;
     private Integer baseId;
     private OperatorStatus status;
 }
