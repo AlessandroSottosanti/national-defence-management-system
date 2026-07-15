@@ -26,8 +26,13 @@ public class EquipmentSeeder extends AbstractSeeder<Equipment> {
 
         Equipment entity = new Equipment();
 
-        entity.setName("Equipment " + index);
-        entity.setModel("Model " + index);
+        entity.setName(
+                "Equipment " + index
+        );
+
+        entity.setModel(
+                "Model " + index
+        );
 
         entity.setCondition(
                 EquipmentCondition.values()[
@@ -41,17 +46,40 @@ public class EquipmentSeeder extends AbstractSeeder<Equipment> {
                         ]
         );
 
+        boolean firearm = index % 2 == 0;
+
         entity.setFireArm(
-                index % 2 == 0
+                firearm
         );
 
-        entity.setAmmunitionCount(
-                100 + index
-        );
+        if (firearm) {
+
+            int ammoCapacity = 30;
+
+            entity.setAmmoCapacity(
+                    ammoCapacity
+            );
+
+            entity.setAmmunitionCount(
+                    index % (ammoCapacity + 1)
+            );
+
+        } else {
+
+            entity.setAmmoCapacity(
+                    0
+            );
+
+            entity.setAmmunitionCount(
+                    0
+            );
+        }
 
         entity.setOperator(
-                em.find(Operator.class,
-                        ((index - 1) % MIN_ROWS) + 1)
+                em.find(
+                        Operator.class,
+                        ((index - 1) % MIN_ROWS) + 1
+                )
         );
 
         return entity;
