@@ -1,6 +1,7 @@
 package it.application.nationaldefencemanagementsystem.Services;
 
 import it.application.nationaldefencemanagementsystem.DTOs.VehicleCategoryDto;
+import it.application.nationaldefencemanagementsystem.DTOs.VehicleDto;
 import it.application.nationaldefencemanagementsystem.Entities.VehicleCategory;
 import it.application.nationaldefencemanagementsystem.Mappers.VehicleCategoryMapper;
 import it.application.nationaldefencemanagementsystem.Repositories.VehicleCategoryRepository;
@@ -10,11 +11,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class VehicleCategoryService {
+public class VehicleCategoryService extends AbstractService<VehicleCategory, VehicleDto> {
 
     private final VehicleCategoryRepository vehicleCategoryRepository;
     private final VehicleCategoryMapper vehicleCategoryMapper;
+
+    public VehicleCategoryService(
+            VehicleCategoryRepository vehicleCategoryRepository,
+            VehicleCategoryMapper vehicleCategoryMapper){
+        super(vehicleCategoryRepository, vehicleCategoryMapper);
+        this.vehicleCategoryRepository = vehicleCategoryRepository;
+        this.vehicleCategoryMapper = vehicleCategoryMapper;
+    }
 
     public List<VehicleCategoryDto> findAll() {
 

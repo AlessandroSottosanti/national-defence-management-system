@@ -5,10 +5,11 @@ import it.application.nationaldefencemanagementsystem.Entities.Vehicle;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VehicleMapper {
+public class VehicleMapper extends AbstractConverter<Vehicle,VehicleDto> {
 
     // converto entity veicolo in un veicolo dto per recuperare metodo dal db per poi darlo ai controller (o anche Frontend).
-    public VehicleDto toDto(Vehicle vehicle) {
+    @Override
+    public VehicleDto toDTO(Vehicle vehicle) {
 
         //questo è un dto vuoto
         VehicleDto dto = new VehicleDto();
@@ -36,6 +37,7 @@ public class VehicleMapper {
         return dto;
     }
 
+    @Override
     public Vehicle toEntity(VehicleDto dto) {
 
         Vehicle vehicle = new Vehicle();
@@ -45,4 +47,5 @@ public class VehicleMapper {
 
         return vehicle;
     }
+
 }
