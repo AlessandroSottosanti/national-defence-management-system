@@ -13,6 +13,8 @@ public class OperatorDto {
     private String serviceNumber;
     private String firstName;
     private String lastName;
+    private Integer heightInCm;
+    private Integer weightInKg;
     private String rank;
     private OperatorStatus status;
     private Integer baseId;

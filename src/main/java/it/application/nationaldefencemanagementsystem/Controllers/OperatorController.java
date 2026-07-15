@@ -23,6 +23,8 @@ public class OperatorController extends AbstractController<OperatorDto> {
             @RequestParam(required = false) String serviceNumber,
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) Integer heightInCm,
+            @RequestParam(required = false) Integer weightInKg,
             @RequestParam(required = false) String rank,
             @RequestParam(required = false) Integer baseId,
             @RequestParam(required = false) OperatorStatus status
@@ -34,6 +36,8 @@ public class OperatorController extends AbstractController<OperatorDto> {
         filter.setRank(rank);
         filter.setFirstName(firstName);
         filter.setLastName(lastName);
+        filter.setHeightInCm(heightInCm);
+        filter.setWeightInKg(weightInKg);
         filter.setBaseId(baseId);
         filter.setStatus(status);
 
