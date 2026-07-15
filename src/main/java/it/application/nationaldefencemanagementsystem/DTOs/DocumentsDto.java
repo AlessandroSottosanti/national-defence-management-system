@@ -7,7 +7,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -16,6 +15,6 @@ public class DocumentsDto {
     private Integer id;
     private String title;
     private String filePath;
-    private Operator operator;
-    private Integer vehicle_id;
+    private Integer operatorId;
+    private Integer vehicleId;
 }
