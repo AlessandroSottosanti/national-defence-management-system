@@ -18,28 +18,8 @@ public class EquipmentController extends AbstractController<EquipmentDto>{
 
     @GetMapping
     public List<EquipmentDto> index(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String model,
-            @RequestParam(required = false) EquipmentCondition condition,
-            @RequestParam(required = false) EquipmentStatus status,
-            @RequestParam(required = false) Boolean fireArm,
-            @RequestParam(required = false) Integer operatorId,
-            @RequestParam(required = false) Integer ammunitionCount,
-            @RequestParam(required = false) Integer maxAmmunition
-
-            ) {
-
-        EquipmentFilterDto filter = new EquipmentFilterDto();
-
-        filter.setName(name);
-        filter.setModel(model);
-        filter.setCondition(condition);
-        filter.setStatus(status);
-        filter.setFireArm(fireArm);
-        filter.setOperatorId(operatorId);
-        filter.setAmmunitionCount(ammunitionCount);
-        filter.setMaxAmmunition(maxAmmunition);
-
+            @ModelAttribute EquipmentFilterDto filter
+    ){
         return service.index(filter);
     }
 
