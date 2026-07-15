@@ -20,12 +20,6 @@ public class OperatorController extends AbstractController<OperatorDto> {
         this.service = service;
     }
 
-    @Operation(summary = "Recupera tutti gli elementi",
-            description = "Restituisce la lista degli oggetti gestiti dal controller")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Oggetti restituiti correttamente"),
-            @ApiResponse(responseCode = "500", description = "Errore interno del server")
-    })
     @GetMapping
     public List<OperatorDto> index(
             @ModelAttribute OperatorFilterDto filter
