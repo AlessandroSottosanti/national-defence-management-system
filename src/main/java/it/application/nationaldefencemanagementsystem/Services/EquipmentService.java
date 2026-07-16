@@ -137,21 +137,9 @@ public class EquipmentService extends AbstractService<Equipment, EquipmentDto> {
 
             if (filter.getAmmunitionType() != null && !filter.getAmmunitionType().isBlank()) {
                 predicates.add(
-                        cb.equal(
+                        cb.like(
                                 cb.lower(root.get("ammunitionType")),
                                 "%" + filter.getAmmunitionType().toLowerCase() + "%"
-                        )
-                );
-            }
-
-
-
-            if (filter.getOperatorId() != null) {
-
-                predicates.add(
-                        cb.equal(
-                                root.get("operator").get("id"),
-                                filter.getOperatorId()
                         )
                 );
             }

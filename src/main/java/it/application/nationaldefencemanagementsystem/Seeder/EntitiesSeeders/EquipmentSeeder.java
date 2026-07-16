@@ -54,7 +54,7 @@ public class EquipmentSeeder extends AbstractSeeder<Equipment> {
 
         if (firearm) {
             String[] standardAmmunition = {"5.56x45mm NATO",
-                    "9x19mm Parabelumm",
+                    "9x19mm Parabellum",
                     "7.62x51mm NATO",
                     "12 Gauge",
                     ".50 BMG"};
