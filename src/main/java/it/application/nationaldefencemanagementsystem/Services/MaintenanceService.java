@@ -10,7 +10,6 @@ import it.application.nationaldefencemanagementsystem.Repositories.EquipmentRepo
 import it.application.nationaldefencemanagementsystem.Repositories.MaintenanceRepository;
 import it.application.nationaldefencemanagementsystem.Repositories.VehicleRepository;
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -18,20 +17,158 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class MaintenanceService {
+public class MaintenanceService
+        extends AbstractService<Maintenance, MaintenanceDto> {
 
-    private final MaintenanceRepository maintenanceRepository;
+    private final MaintenanceRepository repository;
     private final VehicleRepository vehicleRepository;
-    private final MaintenanceMapper maintenanceMapper;
     private final EquipmentRepository equipmentRepository;
+    private final MaintenanceMapper mapper;
+
+    public MaintenanceService(
+            MaintenanceRepository repository,
+            MaintenanceMapper mapper,
+            VehicleRepository vehicleRepository,
+            EquipmentRepository equipmentRepository
+    ) {
+        /*
+         * Repository e mapper vengono passati
+         * all'AbstractService.
+         */
+        super(repository, mapper);
+
+        this.repository = repository;
+        this.mapper = mapper;
+        this.vehicleRepository = vehicleRepository;
+        this.equipmentRepository = equipmentRepository;
+    }
 
     /*
-     * Restituisce le manutenzioni applicando
-     * esclusivamente i filtri valorizzati.
-     *
-     * Se non viene passato alcun filtro,
-     * restituisce tutte le manutenzioni.
+     * La manutenzione deve riguardare un veicolo
+     * oppure un equipaggiamento.
+     */
+    @Override
+    public MaintenanceDto insert(MaintenanceDto dto) {
+
+        validateMaintenanceDates(dto);
+        validateMaintenanceTarget(dto);
+
+        Maintenance entity = mapper.toEntity(dto);
+
+        if (dto.getVehicleId() != null) {
+
+            Vehicle vehicle =
+                    vehicleRepository
+                            .findById(dto.getVehicleId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Veicolo non trovato con id: "
+                                                    + dto.getVehicleId()
+                                    )
+                            );
+
+            entity.setVehicle(vehicle);
+            entity.setEquipment(null);
+        }
+
+        if (dto.getEquipmentId() != null) {
+
+            Equipment equipment =
+                    equipmentRepository
+                            .findById(dto.getEquipmentId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Equipaggiamento non trovato con id: "
+                                                    + dto.getEquipmentId()
+                                    )
+                            );
+
+            entity.setEquipment(equipment);
+            entity.setVehicle(null);
+        }
+
+        Maintenance savedEntity =
+                repository.save(entity);
+
+        return mapper.toDTO(savedEntity);
+    }
+
+    /*
+     * Recuperiamo la manutenzione esistente e aggiorniamo
+     * i campi senza creare un nuovo record.
+     */
+    @Override
+    public MaintenanceDto update(MaintenanceDto dto) {
+
+        if (dto.getId() == null) {
+            throw new IllegalArgumentException(
+                    "L'id della manutenzione è obbligatorio "
+                            + "per l'aggiornamento"
+            );
+        }
+
+        validateMaintenanceDates(dto);
+        validateMaintenanceTarget(dto);
+
+        Maintenance entity =
+                repository.findById(dto.getId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Manutenzione non trovata con id: "
+                                                + dto.getId()
+                                )
+                        );
+
+        entity.setDescription(dto.getDescription());
+        entity.setStartDate(dto.getStartDate());
+        entity.setEndDate(dto.getEndDate());
+        entity.setEstimatedMaintenanceDays(
+                dto.getEstimatedMaintenanceDays()
+        );
+        entity.setCost(dto.getCost());
+
+
+        if (dto.getVehicleId() != null) {
+
+            Vehicle vehicle =
+                    vehicleRepository
+                            .findById(dto.getVehicleId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Veicolo non trovato con id: "
+                                                    + dto.getVehicleId()
+                                    )
+                            );
+
+            entity.setVehicle(vehicle);
+            entity.setEquipment(null);
+        }
+
+
+        if (dto.getEquipmentId() != null) {
+
+            Equipment equipment =
+                    equipmentRepository
+                            .findById(dto.getEquipmentId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Equipaggiamento non trovato con id: "
+                                                    + dto.getEquipmentId()
+                                    )
+                            );
+
+            entity.setEquipment(equipment);
+            entity.setVehicle(null);
+        }
+
+        Maintenance updatedEntity =
+                repository.save(entity);
+
+        return mapper.toDTO(updatedEntity);
+    }
+
+    /*
+     * Ricerca dinamica con JPA Specification.
      */
     public List<MaintenanceDto> index(
             MaintenanceFilterDto filter
@@ -48,11 +185,8 @@ public class MaintenanceService {
                     List<Predicate> predicates =
                             new ArrayList<>();
 
-                    /*
-                     * Filtra per ID del veicolo collegato.
-                     */
+                    // Filtro tramite id del veicolo.
                     if (currentFilter.getVehicleId() != null) {
-
                         predicates.add(
                                 cb.equal(
                                         root.get("vehicle").get("id"),
@@ -61,11 +195,8 @@ public class MaintenanceService {
                         );
                     }
 
-                    /*
-                     * Filtra per ID dell'equipaggiamento collegato.
-                     */
+                    // Filtro tramite id dell'equipaggiamento.
                     if (currentFilter.getEquipmentId() != null) {
-
                         predicates.add(
                                 cb.equal(
                                         root.get("equipment").get("id"),
@@ -74,10 +205,7 @@ public class MaintenanceService {
                         );
                     }
 
-                    /*
-                     * Ricerca parziale nella descrizione,
-                     * senza distinzione tra maiuscole e minuscole.
-                     */
+
                     if (currentFilter.getDescription() != null
                             && !currentFilter
                             .getDescription()
@@ -101,7 +229,6 @@ public class MaintenanceService {
 
                     // Filtro esatto per data di inizio.
                     if (currentFilter.getStartDate() != null) {
-
                         predicates.add(
                                 cb.equal(
                                         root.get("startDate"),
@@ -112,7 +239,6 @@ public class MaintenanceService {
 
                     // Filtro esatto per data di fine.
                     if (currentFilter.getEndDate() != null) {
-
                         predicates.add(
                                 cb.equal(
                                         root.get("endDate"),
@@ -138,7 +264,6 @@ public class MaintenanceService {
 
                     // Filtro esatto per costo.
                     if (currentFilter.getCost() != null) {
-
                         predicates.add(
                                 cb.equal(
                                         root.get("cost"),
@@ -147,9 +272,6 @@ public class MaintenanceService {
                         );
                     }
 
-                    /*
-                     * Collega tutte le condizioni tramite AND.
-                     */
                     return cb.and(
                             predicates.toArray(
                                     new Predicate[0]
@@ -157,188 +279,12 @@ public class MaintenanceService {
                     );
                 };
 
-        return maintenanceRepository
-                .findAll(specification)
-                .stream()
-                .map(maintenanceMapper::toDto)
-                .toList();
-    }
-
-    /*
-     * Restituisce una manutenzione tramite ID.
-     */
-    public MaintenanceDto findById(Integer id) {
-
-        Maintenance maintenance =
-                getMaintenanceById(id);
-
-        return maintenanceMapper.toDto(maintenance);
-    }
-
-    /*
-     * Crea una nuova manutenzione.
-     *
-     * La manutenzione deve riguardare un veicolo
-     * oppure un equipaggiamento, mai entrambi.
-     */
-    public MaintenanceDto create(MaintenanceDto dto) {
-
-        validateMaintenanceDates(dto);
-        validateMaintenanceTarget(dto);
-
-        Maintenance maintenance =
-                maintenanceMapper.toEntity(dto);
-
-        /*
-         * Associazione al veicolo.
-         */
-        if (dto.getVehicleId() != null) {
-
-            Vehicle vehicle =
-                    getVehicleById(dto.getVehicleId());
-
-            maintenance.setVehicle(vehicle);
-            maintenance.setEquipment(null);
-        }
-
-        /*
-         * Associazione all'equipaggiamento.
-         */
-        if (dto.getEquipmentId() != null) {
-
-            Equipment equipment =
-                    getEquipmentById(dto.getEquipmentId());
-
-            maintenance.setEquipment(equipment);
-            maintenance.setVehicle(null);
-        }
-
-        Maintenance savedMaintenance =
-                maintenanceRepository.save(maintenance);
-
-        return maintenanceMapper.toDto(
-                savedMaintenance
+        return converter.toDTOList(
+                repository.findAll(specification)
         );
     }
 
-    /*
-     * Aggiorna una manutenzione esistente.
-     */
-    public MaintenanceDto update(
-            Integer id,
-            MaintenanceDto dto
-    ) {
 
-        validateMaintenanceDates(dto);
-        validateMaintenanceTarget(dto);
-
-        /*
-         * Recuperiamo l'entity già esistente.
-         */
-        Maintenance maintenance =
-                getMaintenanceById(id);
-
-        maintenance.setDescription(dto.getDescription());
-        maintenance.setStartDate(dto.getStartDate());
-        maintenance.setEndDate(dto.getEndDate());
-        maintenance.setEstimatedMaintenanceDays(
-                dto.getEstimatedMaintenanceDays()
-        );
-        maintenance.setCost(dto.getCost());
-
-        /*
-         * Se la manutenzione riguarda un veicolo,
-         * colleghiamo il veicolo e rimuoviamo
-         * l'eventuale equipaggiamento precedente.
-         */
-        if (dto.getVehicleId() != null) {
-
-            Vehicle vehicle =
-                    getVehicleById(dto.getVehicleId());
-
-            maintenance.setVehicle(vehicle);
-            maintenance.setEquipment(null);
-        }
-
-        /*
-         * Se la manutenzione riguarda un equipaggiamento,
-         * colleghiamo l'equipaggiamento e rimuoviamo
-         * l'eventuale veicolo precedente.
-         */
-        if (dto.getEquipmentId() != null) {
-
-            Equipment equipment =
-                    getEquipmentById(dto.getEquipmentId());
-
-            maintenance.setEquipment(equipment);
-            maintenance.setVehicle(null);
-        }
-
-        Maintenance updatedMaintenance =
-                maintenanceRepository.save(maintenance);
-
-        return maintenanceMapper.toDto(
-                updatedMaintenance
-        );
-    }
-
-    /*
-     * Elimina una manutenzione tramite ID.
-     */
-    public void delete(Integer id) {
-
-        Maintenance maintenance =
-                getMaintenanceById(id);
-
-        maintenanceRepository.delete(maintenance);
-    }
-
-    /*
-     * Recupera una manutenzione tramite ID.
-     */
-    private Maintenance getMaintenanceById(Integer id) {
-
-        return maintenanceRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Manutenzione non trovata con id: "
-                                        + id
-                        )
-                );
-    }
-
-    /*
-     * Recupera un veicolo tramite ID.
-     */
-    private Vehicle getVehicleById(Integer id) {
-
-        return vehicleRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Veicolo non trovato con id: "
-                                        + id
-                        )
-                );
-    }
-
-    /*
-     * Recupera un equipaggiamento tramite ID.
-     */
-    private Equipment getEquipmentById(Integer id) {
-
-        return equipmentRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Equipaggiamento non trovato con id: "
-                                        + id
-                        )
-                );
-    }
-
-    /*
-     * Controlla che la manutenzione sia associata
-     * esattamente a uno tra Vehicle ed Equipment.
-     */
     private void validateMaintenanceTarget(
             MaintenanceDto dto
     ) {
@@ -350,7 +296,6 @@ public class MaintenanceService {
                 dto.getEquipmentId() != null;
 
         if (!hasVehicle && !hasEquipment) {
-
             throw new IllegalArgumentException(
                     "La manutenzione deve essere associata "
                             + "a un veicolo o a un equipaggiamento"
@@ -358,7 +303,6 @@ public class MaintenanceService {
         }
 
         if (hasVehicle && hasEquipment) {
-
             throw new IllegalArgumentException(
                     "La manutenzione non può essere associata "
                             + "contemporaneamente a un veicolo "
@@ -367,10 +311,7 @@ public class MaintenanceService {
         }
     }
 
-    /*
-     * Controlla che la data di fine non sia
-     * precedente alla data di inizio.
-     */
+
     private void validateMaintenanceDates(
             MaintenanceDto dto
     ) {
