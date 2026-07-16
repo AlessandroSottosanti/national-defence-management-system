@@ -17,10 +17,7 @@ public class EquipmentFilterDto {
     private EquipmentCondition condition;
     private EquipmentStatus status;
     private Boolean fireArm;
+    private String ammunitionType;
     private Integer operatorId;
-    private Integer minAmmunitionCount;
-    private Integer maxAmmunitionCount;
-    private Integer maxAmmoCapacity;
-    private Integer minAmmoCapacity;
 
 }

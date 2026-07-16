@@ -135,45 +135,15 @@ public class EquipmentService extends AbstractService<Equipment, EquipmentDto> {
             }
 
 
-            if (filter.getMaxAmmunitionCount() != null) {
+            if (filter.getAmmunitionType() != null && !filter.getAmmunitionType().isBlank()) {
                 predicates.add(
-                        cb.lessThan(
-                                root.get("ammunitionCount"),
-                                filter.getMaxAmmunitionCount()
+                        cb.equal(
+                                cb.lower(root.get("ammunitionType")),
+                                "%" + filter.getAmmunitionType().toLowerCase() + "%"
                         )
                 );
             }
 
-
-
-
-            // Filtro per il limite minimo di munizioni ( >= minAmmunitionCount )
-            if (filter.getMinAmmunitionCount() != null) {
-                predicates.add(
-                        cb.greaterThanOrEqualTo(
-                                root.get("ammunitionCount"),
-                                filter.getMinAmmunitionCount()
-                        )
-                );
-            }
-
-            if (filter.getMaxAmmoCapacity() != null) {
-                predicates.add(
-                        cb.lessThan(
-                                root.get("ammoCapacity"),
-                                filter.getMaxAmmoCapacity()
-                        )
-                );
-            }
-
-            if (filter.getMinAmmoCapacity() != null) {
-                predicates.add(
-                        cb.greaterThanOrEqualTo(
-                                root.get("ammoCapacity"),
-                                filter.getMinAmmoCapacity()
-                        )
-                );
-            }
 
 
             if (filter.getOperatorId() != null) {
