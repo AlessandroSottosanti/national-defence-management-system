@@ -18,9 +18,10 @@ public class EquipmentDto {
     @Enumerated(EnumType.STRING)
     private EquipmentCondition condition;
 
+    private boolean fireArm;
+    private String ammunitionType;
+
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
-    private Integer ammunitionCount;
-    private Integer ammoCapacity;
     private Integer operatorId;
 }

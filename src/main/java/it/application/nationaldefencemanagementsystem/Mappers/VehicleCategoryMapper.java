@@ -11,7 +11,6 @@ public class VehicleCategoryMapper extends AbstractConverter<VehicleCategory, Ve
 
     @Override
     public VehicleCategoryDto toDTO(VehicleCategory vehicleCategory) {
-
         VehicleCategoryDto dto = new VehicleCategoryDto();
 
         dto.setId(vehicleCategory.getId());

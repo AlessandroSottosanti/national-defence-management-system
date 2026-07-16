@@ -53,26 +53,17 @@ public class EquipmentSeeder extends AbstractSeeder<Equipment> {
         );
 
         if (firearm) {
-
-            int ammoCapacity = 30;
-
-            entity.setAmmoCapacity(
-                    ammoCapacity
-            );
-
-            entity.setAmmunitionCount(
-                    index % (ammoCapacity + 1)
+            String[] standardAmmunition = {"5.56x45mm NATO",
+                                            "9x19mm Parabelumm",
+                                            "7.62x51mm NATO",
+                                            "12 Gauge",
+                                            ".50 BMG"};
+            entity.setAmmunitionType(
+                    standardAmmunition[index % standardAmmunition.length]
             );
 
         } else {
-
-            entity.setAmmoCapacity(
-                    0
-            );
-
-            entity.setAmmunitionCount(
-                    0
-            );
+            entity.setAmmunitionType(null);
         }
 
         entity.setOperator(
