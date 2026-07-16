@@ -5,56 +5,52 @@ import it.application.nationaldefencemanagementsystem.Entities.Maintenance;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MaintenanceMapper {
+public class MaintenanceMapper
+        extends AbstractConverter<Maintenance, MaintenanceDto> {
 
-     //Converte l'entity Maintenance nel DTO restituito dal service e dal controller.
+    @Override
+    public Maintenance toEntity(MaintenanceDto dto) {
 
-    public MaintenanceDto toDto(Maintenance maintenance) {
+        Maintenance entity = new Maintenance();
+
+
+        entity.setDescription(dto.getDescription());
+        entity.setStartDate(dto.getStartDate());
+        entity.setEndDate(dto.getEndDate());
+        entity.setEstimatedMaintenanceDays(
+                dto.getEstimatedMaintenanceDays()
+        );
+        entity.setCost(dto.getCost());
+
+        return entity;
+    }
+
+    @Override
+    public MaintenanceDto toDTO(Maintenance entity) {
 
         MaintenanceDto dto = new MaintenanceDto();
 
-        dto.setId(maintenance.getId());
-        dto.setDescription(maintenance.getDescription());
-        dto.setStartDate(maintenance.getStartDate());
-        dto.setEndDate(maintenance.getEndDate());
+        dto.setId(entity.getId());
+        dto.setDescription(entity.getDescription());
+        dto.setStartDate(entity.getStartDate());
+        dto.setEndDate(entity.getEndDate());
         dto.setEstimatedMaintenanceDays(
-                maintenance.getEstimatedMaintenanceDays()
+                entity.getEstimatedMaintenanceDays()
         );
-        dto.setCost(maintenance.getCost());
+        dto.setCost(entity.getCost());
 
-        //Nell'entity è presente l'intero oggetto Vehicle.Nel DTO restituiamo soltanto il suo ID.
-
-        if (maintenance.getVehicle() != null) {
+        if (entity.getVehicle() != null) {
             dto.setVehicleId(
-                    maintenance.getVehicle().getId()
+                    entity.getVehicle().getId()
             );
         }
 
-        //aggiungo equipaggiamento
-        if (maintenance.getEquipment() != null) {
+        if (entity.getEquipment() != null) {
             dto.setEquipmentId(
-                    maintenance.getEquipment().getId()
+                    entity.getEquipment().getId()
             );
         }
 
         return dto;
-    }
-
-    /*
-    Converte il DTO in una nuova entity. Il veicolo non viene impostato qui: verrà recuperato tramite repository nel service.
-     */
-    public Maintenance toEntity(MaintenanceDto dto) {
-
-        Maintenance maintenance = new Maintenance();
-
-        maintenance.setDescription(dto.getDescription());
-        maintenance.setStartDate(dto.getStartDate());
-        maintenance.setEndDate(dto.getEndDate());
-        maintenance.setEstimatedMaintenanceDays(
-                dto.getEstimatedMaintenanceDays()
-        );
-        maintenance.setCost(dto.getCost());
-
-        return maintenance;
     }
 }
