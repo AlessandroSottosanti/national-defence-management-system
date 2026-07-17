@@ -15,11 +15,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 public class VehicleService
         extends AbstractService<Vehicle, VehicleDto> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(VehicleService.class);
 
     private final VehicleRepository repository;
     private final VehicleCategoryRepository vehicleCategoryRepository;
@@ -51,41 +58,79 @@ public class VehicleService
     @Override
     public VehicleDto insert(VehicleDto dto) {
 
-        VehicleCategory category =
-                vehicleCategoryRepository
-                        .findById(dto.getVehicleCategoryId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
+        try {
+
+            if (dto == null) {
+                throw new IllegalArgumentException(
+                        "Il veicolo da inserire non può essere null"
+                );
+            }
+
+            VehicleCategory category =
+                    vehicleCategoryRepository
+                            .findById(dto.getVehicleCategoryId())
+                            .orElseThrow(() -> {
+                                String message =
                                         "Categoria mezzo non trovata con id: "
-                                                + dto.getVehicleCategoryId()
-                                )
-                        );
+                                                + dto.getVehicleCategoryId();
 
-        Base base =
-                baseRepository
-                        .findById(dto.getBaseId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
+                                logger.warn(message);
+
+                                return new NoSuchElementException(message);
+                            });
+
+            Base base =
+                    baseRepository
+                            .findById(dto.getBaseId())
+                            .orElseThrow(() -> {
+                                String message =
                                         "Base non trovata con id: "
-                                                + dto.getBaseId()
-                                )
-                        );
+                                                + dto.getBaseId();
 
-        Vehicle entity = mapper.toEntity(dto);
+                                logger.warn(message);
 
-        /*
-         * La matricola viene generata solamente
-         * durante l'inserimento.
-         */
-        entity.setMatricola(UUID.randomUUID());
+                                return new NoSuchElementException(message);
+                            });
 
-        entity.setCategory(category);
-        entity.setBase(base);
+            Vehicle entity = mapper.toEntity(dto);
 
-        Vehicle savedEntity =
-                repository.save(entity);
+            entity.setMatricola(UUID.randomUUID());
 
-        return mapper.toDTO(savedEntity);
+            entity.setCategory(category);
+            entity.setBase(base);
+
+            Vehicle savedEntity =
+                    repository.save(entity);
+
+            logger.info(
+                    "Veicolo creato con id {} e matricola {}",
+                    savedEntity.getId(),
+                    savedEntity.getMatricola()
+            );
+
+            return mapper.toDTO(savedEntity);
+
+        } catch (IllegalArgumentException | NoSuchElementException ex) {
+
+            logger.warn(
+                    "Errore durante inserimento veicolo: {}",
+                    ex.getMessage()
+            );
+
+            throw ex;
+
+        } catch (Exception ex) {
+
+            logger.error(
+                    "Errore imprevisto durante inserimento veicolo",
+                    ex
+            );
+
+            throw new RuntimeException(
+                    "Errore durante il salvataggio del veicolo",
+                    ex
+            );
+        }
     }
 
     /*
@@ -95,6 +140,12 @@ public class VehicleService
     @Override
     public VehicleDto update(VehicleDto dto) {
 
+        if (dto == null) {
+            throw new IllegalArgumentException(
+                    "Il DTO del veicolo non può essere null"
+            );
+        }
+
         if (dto.getId() == null) {
             throw new IllegalArgumentException(
                     "L'id del veicolo è obbligatorio per l'aggiornamento"
@@ -103,12 +154,16 @@ public class VehicleService
 
         Vehicle entity =
                 repository.findById(dto.getId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Veicolo non trovato con id: "
-                                                + dto.getId()
-                                )
-                        );
+                        .orElseThrow(() -> {
+
+                            String message =
+                                    "Veicolo non trovato con id: "
+                                            + dto.getId();
+
+                            logger.warn(message);
+
+                            return new NoSuchElementException(message);
+                        });
 
         VehicleCategory category =
                 vehicleCategoryRepository
