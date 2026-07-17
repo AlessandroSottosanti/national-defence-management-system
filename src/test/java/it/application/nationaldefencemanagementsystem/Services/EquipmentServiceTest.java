@@ -1,9 +1,8 @@
-package it.application.nationaldefencemanagementsystem.ServiceTest;
+package it.application.nationaldefencemanagementsystem.Services;
 
 
 import it.application.nationaldefencemanagementsystem.Mappers.EquipmentMapper;
 import it.application.nationaldefencemanagementsystem.Repositories.EquipmentRepository;
-import it.application.nationaldefencemanagementsystem.Services.EquipmentService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
