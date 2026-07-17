@@ -187,6 +187,7 @@ public class EquipmentServiceTest {
         verify(repository, never()).save(any()); // Il salvataggio viene bloccato
     }
 
+    //Per index analizziamo 3 casi specifici
     // --- CASO 1: Filtro vuoto (Ricerca globale) ---
     @Test
     void index_ShouldReturnEquipmentList_WhenFilterIsEmpty() {
@@ -230,8 +231,24 @@ public class EquipmentServiceTest {
         verify(repository).findAll(any(Specification.class));
     }
 
+    // --- CASO 3: Nessun risultato trovato (Lista vuota) ---
+    @Test
+    void index_ShouldReturnEmptyList_WhenNoEquipmentMatches() {
+        // 1. Arrange
+        EquipmentFilterDto filter = new EquipmentFilterDto();
+        filter.setName("ArmaInesistente");
 
+        // Istruiamo il finto DB a restituire una lista vuota
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of());
 
+        // 2. Act
+        List<EquipmentDto> result = service.index(filter);
+
+        // 3. Assert
+        assertNotNull(result); // Non deve mai restituire null
+        assertTrue(result.isEmpty()); // Verifichiamo che la lista sia effettivamente vuota (size = 0)
+        verify(repository).findAll(any(Specification.class));
+    }
 
 
 }
