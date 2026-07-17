@@ -1,9 +1,72 @@
 # National Defence Management System
 
-## Getting Started
+## Descrizione del Progetto
 
-For further reference, please consider the following sections:
+National Defence Management System è una piattaforma gestionale sviluppata per centralizzare e organizzare le principali informazioni operative e amministrative di una struttura militare.
 
+L'obiettivo del sistema è fornire un unico punto di accesso per la gestione delle risorse della Difesa, consentendo il monitoraggio e la consultazione di personale, basi militari, mezzi, equipaggiamenti, manutenzioni, documentazione e utenti applicativi.
+
+La piattaforma nasce per risolvere il problema della frammentazione dei dati, spesso distribuiti tra sistemi differenti, archivi locali o documentazione non integrata. Attraverso un'architettura centralizzata, il sistema permette di migliorare la tracciabilità delle informazioni, ridurre gli errori operativi e semplificare le attività di gestione quotidiana. :contentReference[oaicite:0]{index=0}
+
+L'applicazione è progettata secondo un'architettura a livelli basata su:
+
+- Spring Boot;
+- Spring Data JPA;
+- PostgreSQL;
+- API REST;
+- DTO e Mapper per la separazione dei modelli applicativi;
+- Specification Pattern per le ricerche dinamiche;
+- gestione centralizzata delle relazioni tra entità.
+
+Il sistema implementa attualmente la gestione di:
+
+- Forze Armate;
+- Basi Militari;
+- Operatori;
+- Veicoli;
+- Categorie Veicoli;
+- Equipaggiamenti;
+- Manutenzioni;
+- Documenti;
+- Utenti.
+
+Ogni modulo è stato progettato per essere indipendente, estendibile e facilmente integrabile con nuove funzionalità future, mantenendo una chiara separazione delle responsabilità tra Controller, Service, Repository e Mapper.
+
+## Obiettivi
+
+Gli obiettivi principali del progetto sono:
+
+- centralizzare le informazioni operative;
+- migliorare il controllo delle risorse;
+- garantire la coerenza dei dati;
+- semplificare la manutenzione applicativa;
+- fornire una base solida per future evoluzioni del sistema;
+- applicare principi di progettazione enterprise tramite Spring Boot.
+
+## Caratteristiche Principali
+
+- Architettura multilivello.
+- API REST.
+- Pattern DTO/Mapper.
+- Repository basati su Spring Data JPA.
+- Query dinamiche tramite Specification.
+- Seeder automatici per l'ambiente di sviluppo.
+- Gestione delle relazioni tra entità.
+- Testing tramite JUnit 5 e Mockito.
+- Struttura facilmente estendibile e manutenibile.
+
+## Stato del Progetto
+
+L'attuale versione rappresenta un MVP (Minimum Viable Product) focalizzato sulla gestione delle principali entità del dominio militare e costituisce la base per l'introduzione di funzionalità avanzate quali:
+
+- autenticazione e autorizzazione tramite Spring Security;
+- gestione dei permessi;
+- audit log;
+- dashboard operative;
+- reportistica;
+- gestione del magazzino;
+- gestione fornitori e contratti;
+- integrazioni con sistemi esterni.
 
 ## Entities
 
@@ -2601,3 +2664,208 @@ EquipmentRepository.save(...)
       ↓
 EquipmentDto
 ```
+
+---
+
+## Seeder
+
+### Panoramica
+
+I Seeder vengono utilizzati esclusivamente in ambiente di sviluppo per popolare automaticamente il database con dati di esempio.
+
+Tutti i Seeder sono attivati tramite il profilo Spring:
+
+```java
+@Profile("dev")
+```
+
+Questo garantisce che il popolamento automatico non venga eseguito negli ambienti di produzione. :contentReference[oaicite:0]{index=0}
+
+---
+
+### Obiettivi
+
+I Seeder consentono di:
+
+- generare rapidamente dati di test;
+- semplificare lo sviluppo delle API;
+- testare filtri e relazioni tra entità;
+- evitare l'inserimento manuale dei dati durante lo sviluppo.
+
+---
+
+### AbstractSeeder
+
+Tutti i Seeder del progetto ereditano da:
+
+```java
+AbstractSeeder<T>
+```
+
+:contentReference[oaicite:1]{index=1}
+
+Questa classe centralizza tutta la logica comune di popolamento del database.
+
+#### Costanti
+
+```java
+MIN_ROWS = 10
+```
+
+:contentReference[oaicite:2]{index=2}
+
+Ogni tabella deve contenere almeno 10 record.
+
+---
+
+#### Metodi Astratti
+
+Ogni Seeder concreto deve implementare:
+
+```java
+protected abstract Class<T> getEntityClass();
+```
+
+Restituisce la classe dell'entità da gestire.
+
+```java
+protected abstract T createEntity(int index);
+```
+
+Genera l'istanza dell'entità da salvare.
+
+:contentReference[oaicite:3]{index=3}
+
+---
+
+#### Processo di Seed
+
+Durante l'esecuzione:
+
+1. viene verificato il numero di record presenti;
+2. se la tabella contiene almeno 10 elementi il Seeder viene ignorato;
+3. in caso contrario vengono generati solo i record mancanti;
+4. le entità vengono persistite tramite EntityManager.
+
+:contentReference[oaicite:4]{index=4}
+
+---
+
+### DatabaseInitializer
+
+L'avvio del processo di popolamento è gestito da:
+
+```java
+DatabaseInitializer
+```
+
+:contentReference[oaicite:5]{index=5}
+
+Questa classe implementa:
+
+```java
+CommandLineRunner
+```
+
+e viene eseguita automaticamente all'avvio dell'applicazione.
+
+---
+
+#### Ordine di Esecuzione
+
+I Seeder vengono eseguiti rispettando le dipendenze tra le entità.
+
+```text
+ArmedForce
+    ↓
+Base
+    ↓
+VehicleCategory
+    ↓
+Operator
+    ↓
+User
+    ↓
+Vehicle
+    ↓
+Equipment
+    ↓
+Maintenance
+    ↓
+Documents
+```
+
+:contentReference[oaicite:6]{index=6}
+
+Questo garantisce che tutte le relazioni richieste siano già presenti nel database al momento della creazione delle entità dipendenti.
+
+---
+
+### Seeder Implementati
+
+| Seeder | Entità Gestita |
+|----------|----------|
+| ArmedForceSeeder | ArmedForce |
+| BaseSeeder | Base |
+| VehicleCategorySeeder | VehicleCategory |
+| OperatorSeeder | Operator |
+| UserSeeder | User |
+| VehicleSeeder | Vehicle |
+| EquipmentSeeder | Equipment |
+| MaintenanceSeeder | Maintenance |
+| DocumentsSeeder | Documents |
+
+:contentReference[oaicite:7]{index=7}
+
+---
+
+### Gestione delle Relazioni
+
+I Seeder recuperano le entità correlate tramite EntityManager.
+
+Esempio:
+
+```java
+entity.setArmedForce(
+    em.find(
+        ArmedForce.class,
+        ((index - 1) % MIN_ROWS) + 1
+    )
+);
+```
+
+:contentReference[oaicite:8]{index=8}
+
+Questo approccio permette di creare dati coerenti e collegati tra loro.
+
+---
+
+### Dati Generati
+
+I dati prodotti dai Seeder hanno finalità esclusivamente dimostrative.
+
+Alcuni esempi:
+
+- Forze armate;
+- Basi militari;
+- Operatori;
+- Veicoli;
+- Equipaggiamenti;
+- Manutenzioni;
+- Documenti.
+
+:contentReference[oaicite:9]{index=9} :contentReference[oaicite:10]{index=10} :contentReference[oaicite:11]{index=11}
+
+---
+
+### Principi Architetturali
+
+I Seeder:
+
+- non contengono logica di business;
+- non utilizzano Repository;
+- operano direttamente tramite EntityManager;
+- sono destinati esclusivamente all'ambiente di sviluppo;
+- sono progettati per essere idempotenti.
+
+L'esecuzione ripetuta dei Seeder non genera duplicati oltre la soglia minima configurata.
