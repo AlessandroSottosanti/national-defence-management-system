@@ -317,8 +317,15 @@ equipment
 | operator | Operator | Operatore assegnato (opzionale) |
 
 ### Vincoli
+A garanzia dell'integrità dei dati, sono stati introdotti vincoli espliciti a livello di database e di logica applicativa:
 
-Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria. L'associazione con `operator` è opzionale (caricamento `LAZY`).
+- `name` obbligatorio (lunghezza massima 100 caratteri)
+- `model` obbligatorio (lunghezza massima 100 caratteri)
+- `condition` obbligatorio
+- `status` obbligatorio
+- `fireArm` obbligatorio
+- `ammunitionType` limitato a 50 caratteri. L'inserimento è vincolato logicamente al campo `fireArm` (è valorizzabile solo se l'oggetto è effettivamente un'arma da fuoco).
+- L'associazione con `operator` rimane opzionale (caricamento `LAZY`).
 
 ### Relazioni
 
@@ -392,8 +399,13 @@ documents
 | vehicle | Vehicle | Veicolo associato (opzionale) |
 
 ### Vincoli
+### Vincoli
 
-Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria. Le associazioni con `operator` e `vehicle` non sono marcate come obbligatorie.
+Per garantire la coerenza e l'accessibilità degli archivi documentali, sono stati introdotti vincoli a livello di database:
+
+- `title` obbligatorio (lunghezza massima 255 caratteri).
+- `filePath` obbligatorio, poiché la registrazione di un documento risulta inconsistente senza il puntamento al file fisico o digitale.
+- Le associazioni con `operator` e `vehicle` rimangono opzionali (un documento può riguardare l'intero sistema e non una singola entità), ma sono state ottimizzate con il caricamento `LAZY` per prevenire cali di performance del database.
 
 ### Relazioni
 

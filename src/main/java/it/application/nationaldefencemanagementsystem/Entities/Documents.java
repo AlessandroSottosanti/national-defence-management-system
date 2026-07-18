@@ -16,16 +16,17 @@ public class Documents {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, length = 255)
     private String title;
 
-    @Column(name="file_path")
+    @Column(name="file_path", nullable = false)
     private String filePath;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="operator_id")
     private Operator operator;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="vehicle_id")
     private Vehicle vehicle;
 
