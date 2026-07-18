@@ -2,6 +2,7 @@ package it.application.nationaldefencemanagementsystem.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "users")
@@ -10,7 +11,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class User {
+public class User  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
