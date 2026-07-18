@@ -218,6 +218,231 @@ Operator
 
 ---
 
+## VehicleCategory
+
+### Scopo
+
+Rappresenta una categoria di veicolo, utilizzata per classificare i mezzi gestiti dal sistema.
+
+### Tabella
+
+```sql
+vehicle_categories
+```
+
+### Campi
+
+| Campo | Tipo | Descrizione |
+|---------|---------|---------|
+| id | Integer | Identificativo univoco |
+| name | String | Nome della categoria |
+
+### Vincoli
+
+Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria.
+
+### Relazioni
+
+```text
+VehicleCategory
+    ↑
+    |
+Vehicle (ManyToOne)
+```
+
+---
+
+## Vehicle
+
+### Scopo
+
+Rappresenta un veicolo appartenente ad una base militare, classificato secondo una categoria di veicolo.
+
+### Tabella
+
+```sql
+vehicles
+```
+
+### Campi
+
+| Campo | Tipo | Descrizione |
+|---------|---------|---------|
+| id | Integer | Identificativo univoco |
+| matricola | UUID | Matricola del veicolo |
+| modello | String | Modello del veicolo |
+| stato | VehicleStatus | Stato operativo del veicolo |
+| category | VehicleCategory | Categoria di appartenenza |
+| base | Base | Base militare di appartenenza |
+
+### Vincoli
+
+Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria.
+
+### Relazioni
+
+```text
+Vehicle
+ ├── ManyToOne → VehicleCategory
+ ├── ManyToOne → Base
+ ├── OneToMany ← Maintenance
+ └── OneToMany ← Documents
+```
+
+---
+
+## Equipment
+
+### Scopo
+
+Rappresenta un equipaggiamento militare, eventualmente assegnato ad un operatore.
+
+### Tabella
+
+```sql
+equipment
+```
+
+### Campi
+
+| Campo | Tipo | Descrizione |
+|---------|---------|---------|
+| id | Integer | Identificativo univoco |
+| name | String | Nome dell'equipaggiamento |
+| model | String | Modello dell'equipaggiamento |
+| condition | EquipmentCondition | Condizione dell'equipaggiamento |
+| status | EquipmentStatus | Stato dell'equipaggiamento |
+| fireArm | boolean | Indica se si tratta di un'arma da fuoco |
+| ammunitionType | String | Tipologia di munizionamento |
+| operator | Operator | Operatore assegnato (opzionale) |
+
+### Vincoli
+
+Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria. L'associazione con `operator` è opzionale (caricamento `LAZY`).
+
+### Relazioni
+
+```text
+Equipment
+ ├── ManyToOne → Operator
+ └── OneToMany ← Maintenance
+```
+
+---
+
+## Maintenance
+
+### Scopo
+
+Rappresenta un intervento di manutenzione relativo ad un veicolo o ad un equipaggiamento.
+
+### Tabella
+
+```sql
+maintenance
+```
+
+### Campi
+
+| Campo | Tipo | Descrizione |
+|---------|---------|---------|
+| id | Integer | Identificativo univoco |
+| vehicle | Vehicle | Veicolo sottoposto a manutenzione (opzionale) |
+| equipment | Equipment | Equipaggiamento sottoposto a manutenzione (opzionale) |
+| description | String | Descrizione dell'intervento (TEXT) |
+| startDate | LocalDate | Data di inizio |
+| endDate | LocalDate | Data di fine |
+| estimatedMaintenanceDays | Integer | Durata stimata in giorni |
+| cost | BigDecimal | Costo dell'intervento (precisione 12, scala 2) |
+
+### Vincoli
+
+Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria. Le associazioni con `vehicle` ed `equipment` non sono marcate come obbligatorie.
+
+### Relazioni
+
+```text
+Maintenance
+ ├── ManyToOne → Vehicle
+ └── ManyToOne → Equipment
+```
+
+---
+
+## Documents
+
+### Scopo
+
+Rappresenta un documento caricato nel sistema, associabile ad un operatore e/o ad un veicolo.
+
+### Tabella
+
+```sql
+documents
+```
+
+### Campi
+
+| Campo | Tipo | Descrizione |
+|---------|---------|---------|
+| id | Integer | Identificativo univoco |
+| title | String | Titolo del documento |
+| filePath | String | Percorso del file |
+| operator | Operator | Operatore associato (opzionale) |
+| vehicle | Vehicle | Veicolo associato (opzionale) |
+
+### Vincoli
+
+Non sono presenti vincoli espliciti a livello di annotazione oltre alla chiave primaria. Le associazioni con `operator` e `vehicle` non sono marcate come obbligatorie.
+
+### Relazioni
+
+```text
+Documents
+ ├── ManyToOne → Operator
+ └── ManyToOne → Vehicle
+```
+
+---
+
+## User
+
+### Scopo
+
+Rappresenta un utente applicativo, utilizzato per l'accesso al sistema.
+
+### Tabella
+
+```sql
+users
+```
+
+### Campi
+
+| Campo | Tipo | Descrizione |
+|---------|---------|---------|
+| id | Integer | Identificativo univoco |
+| username | String | Nome utente |
+| email | String | Indirizzo email |
+| password | String | Password (hash) |
+| role | Role | Ruolo applicativo |
+| enabled | boolean | Indica se l'utente è abilitato |
+
+### Vincoli
+
+- `username` obbligatorio
+- `username` univoco
+- `email` obbligatorio
+- `email` univoco
+- `password` obbligatorio
+- `role` obbligatorio
+
+### Relazioni
+
+L'entità `User` non presenta relazioni dirette con le altre entità del dominio applicativo.
+
+---
+
 Le Entities **non vengono esposte direttamente tramite API REST**. Per la comunicazione con il client vengono utilizzati i relativi DTO.
 
 ---
@@ -561,7 +786,7 @@ Specification<Operator>
 SELECT *
 FROM operators
 WHERE first_name = 'Mario'
-AND status = 'ACTIVE'
+  AND status = 'ACTIVE'
 ```
 
 ---
@@ -1143,11 +1368,11 @@ Esempio:
 ```java
 OperatorFilterDto
       ↓
-OperatorService.index()
+              OperatorService.index()
       ↓
 Specification<Operator>
       ↓
-OperatorRepository.findAll(specification)
+              OperatorRepository.findAll(specification)
 ```
 
 Questo approccio consente di costruire query dinamiche senza dover creare un metodo Repository per ogni possibile combinazione di filtri.
@@ -1220,15 +1445,15 @@ Specification<Operator> specification = (root, query, cb) -> {
     if(filter.getFirstName() != null) {
 
         predicates.add(
-            cb.like(
-                cb.lower(root.get("firstName")),
-                "%" + filter.getFirstName().toLowerCase() + "%"
-            )
+                cb.like(
+                        cb.lower(root.get("firstName")),
+                        "%" + filter.getFirstName().toLowerCase() + "%"
+                )
         );
     }
 
     return cb.and(
-        predicates.toArray(new Predicate[0])
+            predicates.toArray(new Predicate[0])
     );
 };
 ```
@@ -1285,8 +1510,8 @@ Il Service costruirà automaticamente una Specification equivalente a:
 SELECT *
 FROM operators
 WHERE status = 'ACTIVE'
-AND base_id = 3
-AND height_in_cm >= 175
+  AND base_id = 3
+  AND height_in_cm >= 175
 ```
 
 senza la necessità di creare un metodo dedicato nel Repository.
@@ -1501,7 +1726,7 @@ Repository
 Database
 ```
 
-Questo approccio consente di applicare esclusivamente i filtri valorizzati dal client. 
+Questo approccio consente di applicare esclusivamente i filtri valorizzati dal client.
 
 ---
 
@@ -2827,11 +3052,11 @@ Esempio:
 
 ```java
 entity.setArmedForce(
-    em.find(
-        ArmedForce.class,
+        em.find(
+                ArmedForce.class,
         ((index - 1) % MIN_ROWS) + 1
-    )
-);
+        )
+        );
 ```
 
 :contentReference[oaicite:8]{index=8}
