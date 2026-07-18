@@ -29,8 +29,8 @@ public class Equipment {
     @Column(name="fire_arm")
     private boolean fireArm;
 
-    @Column(name = "ammunition_count")
-    private int ammunitionCount;
+    @Column(name="ammunition_type")
+    private String ammunitionType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "operator_id")

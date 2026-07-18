@@ -2,8 +2,6 @@ package it.application.nationaldefencemanagementsystem.Services;
 
 public interface ServiceDto<DTO> {
 
-    public Iterable<DTO> getAll();
-
     public DTO read(Integer id);
 
     public DTO insert (DTO dto);

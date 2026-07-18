@@ -13,11 +13,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-
 public class MaintenanceDto {
 
     private Integer id;
-    private Vehicle vehicleId;
+    private Integer vehicleId;
+    //Aggiunta dto di equipment
+    private Integer equipmentId;
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;

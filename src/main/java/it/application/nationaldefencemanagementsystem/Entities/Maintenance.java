@@ -24,6 +24,9 @@ public class Maintenance {
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
+    @ManyToOne
+    @JoinColumn
+    private Equipment equipment;
     @Column(columnDefinition = "TEXT")
     private String description;
     @Column
