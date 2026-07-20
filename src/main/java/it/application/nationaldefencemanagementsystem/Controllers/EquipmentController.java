@@ -23,7 +23,8 @@ public class EquipmentController extends AbstractController<EquipmentDto> {
     }
 
     @GetMapping
-    @Operation(summary = "Filtered equipment search", description = "Returns the list of equipment. Uses query parameters to filter by name, condition, status, etc.")
+    @Operation(summary = "Filtered equipment search", description = "Returns the list of equipment. Uses query parameters to filter by name, condition, status, etc. " +
+            "Use at least one parameter.")
     public List<EquipmentDto> index(
             @ModelAttribute EquipmentFilterDto filter
     ) {

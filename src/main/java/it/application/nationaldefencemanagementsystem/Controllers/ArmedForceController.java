@@ -24,7 +24,7 @@ public class ArmedForceController extends AbstractController<ArmedForceDto> {
 
     @GetMapping
     @Operation(summary = "Filtered Armed Force search", description = "Returns the list of armed forces. Uses an optional query parameter to filter by name." +
-            "Name (exact or partial match via name query parameter).")
+            "Name (exact or partial match via name query parameter).Use at least one parameter.")
     public List<ArmedForceDto> index(
             @RequestParam(required = false) String name
     ) {

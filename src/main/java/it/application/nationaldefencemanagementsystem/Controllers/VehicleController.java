@@ -23,7 +23,7 @@ public class VehicleController extends AbstractController<VehicleDto> {
 
     @GetMapping
     @Operation(summary = "Filtered vehicle search", description = "Returns the list of vehicles. Uses query parameters to filter by specific criteria." +
-            "These are defined in VehicleFilterDto (e.g., model, category ID, operational status, or base assignment).")
+            "These are defined in VehicleFilterDto (e.g., model, category ID, operational status, or base assignment).Use at least one parameter.")
     public List<VehicleDto> index(
             @ModelAttribute VehicleFilterDto filter
     ) {

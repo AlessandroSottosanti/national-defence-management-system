@@ -24,7 +24,8 @@ public class DocumentController extends AbstractController<DocumentsDto> {
     }
 
     @GetMapping
-    @Operation(summary = "Filtered document search", description = "Returns the list of documents. Uses query parameters to filter by title, operator name, vehicle ID, etc.")
+    @Operation(summary = "Filtered document search", description = "Returns the list of documents. Uses query parameters to filter by title, operator name, vehicle ID, etc." +
+            "Use at least one parameter.")
     public List<DocumentsDto> index(
             @ModelAttribute DocumentFilterDto filter
     ) {

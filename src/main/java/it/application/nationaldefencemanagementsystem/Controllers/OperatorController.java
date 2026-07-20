@@ -24,7 +24,7 @@ public class OperatorController extends AbstractController<OperatorDto> {
 
     @GetMapping
     @Operation(summary = "Filtered operator search", description = "Returns the list of operators. Uses query parameters to filter by specific criteria." +
-            "These are defined in OperatorFilterDto (e.g., first name, last name, rank, or assigned base).")
+            "These are defined in OperatorFilterDto (e.g., first name, last name, rank, or assigned base).Use at least one parameter.")
     public List<OperatorDto> index(
             @ModelAttribute OperatorFilterDto filter
     ) {

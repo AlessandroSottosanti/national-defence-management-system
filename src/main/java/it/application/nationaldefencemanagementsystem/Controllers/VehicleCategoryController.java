@@ -21,7 +21,8 @@ public class VehicleCategoryController extends AbstractController<VehicleCategor
     }
 
     @GetMapping
-    @Operation(summary = "Get all vehicle categories", description = "Returns the complete list of available vehicle categories.")
+    @Operation(summary = "Get all vehicle categories", description = "Returns the complete list of available vehicle categories." +
+            "Use at least one parameter.")
     public List<VehicleCategoryDto> index() {
         return vehicleCategoryService.index();
     }
