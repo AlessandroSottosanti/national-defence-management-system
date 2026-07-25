@@ -24,7 +24,7 @@ public class BaseController extends AbstractController<BaseDto> {
 
     @GetMapping
     @Operation(summary = "Filtered base search", description = "Returns the list of bases. Uses query parameters to filter by specific criteria." +
-            "These are defined in BaseFilterDto (e.g., name, location, capacity, or operational status).")
+            "These are defined in BaseFilterDto (e.g., name, location, capacity, or operational status).Use at least one parameter.")
     public List<BaseDto> index(
             @ModelAttribute BaseFilterDto filter
     ) {

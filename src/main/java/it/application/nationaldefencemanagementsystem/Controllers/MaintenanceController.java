@@ -23,7 +23,7 @@ public class MaintenanceController extends AbstractController<MaintenanceDto> {
 
     @GetMapping
     @Operation(summary = "Filtered maintenance search", description = "Returns the list of maintenance records. Uses query parameters to filter by specific criteria." +
-            "These are defined in MaintenanceFilterDto (e.g., date ranges, maintenance status, vehicle ID, or equipment ID).")
+            "These are defined in MaintenanceFilterDto (e.g., date ranges, maintenance status, vehicle ID, or equipment ID).Use at least one parameter.")
     public List<MaintenanceDto> index(
             @ModelAttribute MaintenanceFilterDto filter
     ) {
