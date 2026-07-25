@@ -8,20 +8,20 @@ import lombok.*;
 
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class EquipmentDto {
-
     private Integer id;
     private String name;
     private String model;
     @Enumerated(EnumType.STRING)
     private EquipmentCondition condition;
 
+    private boolean fireArm;
+    private String ammunitionType;
+
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
-
-    private Integer operator_id;
+    private Integer operatorId;
 }
